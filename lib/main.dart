@@ -8,7 +8,8 @@ void main() {
 
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: ThemeData.dark(),
+    theme: ThemeData.light(),
+    darkTheme: ThemeData.dark(),
     getPages: GetPages().getPages(),
     initialRoute: '/',
   ));
@@ -21,6 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      Get.offAllNamed('/app');
+    });
+    return Container();
+
     return _authenticationController.obx((state) {
       if (state == false) return Center(child: CircularProgressIndicator());
       if (state == true) {
@@ -44,7 +50,6 @@ class MyApp extends StatelessWidget {
           });
         }
       }
-      return Container();
     });
   }
 }

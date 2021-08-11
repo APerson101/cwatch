@@ -35,10 +35,6 @@ class _MenuBarState extends State<MenuBar> {
                   child: Text('About Us'))
               .paddingOnly(left: 25, right: 25),
           TextButton(
-                  onPressed: () => _handlePageSelected(PageType.Partners),
-                  child: Text('Partners'))
-              .paddingOnly(left: 25, right: 25),
-          TextButton(
                   onPressed: () => _handlePageSelected(PageType.Product),
                   child: Text('Product'))
               .paddingOnly(left: 25, right: 25),

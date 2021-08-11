@@ -15,8 +15,8 @@ class GetPages {
     FirebaseAuth auth = FirebaseAuth.instance;
     return [
       GetPage(name: '/', page: () => MyApp(), bindings: [
-        BindingsBuilder(
-            () => Get.lazyPut(() => AuthenticationController(auth))),
+        BindingsBuilder(() =>
+            Get.lazyPut(() => AuthenticationController(auth), fenix: true)),
       ]),
       GetPage(name: '/mainSite', page: () => MainSite(), bindings: [
         BindingsBuilder(() => Get.lazyPut(() => MainSiteController())),

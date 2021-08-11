@@ -1,5 +1,11 @@
+import 'package:cwatch/website/homepage/widgets/contact.dart';
+import 'package:cwatch/website/homepage/widgets/africamap.dart';
+import 'package:cwatch/website/homepage/widgets/productinfo.dart';
+import 'package:cwatch/website/homepage/widgets/quotescarousal.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
+import 'package:styled_widget/styled_widget.dart';
+import 'package:get/get.dart';
 
 class HomePageView extends StatelessWidget {
   HomePageView({Key? key}) : super(key: key);
@@ -10,13 +16,25 @@ class HomePageView extends StatelessWidget {
   }
 
   Widget homeViewContent() {
-    return tableView();
+    // return tableView();
     return SingleChildScrollView(
-      //display all data
+      padding: EdgeInsets.only(left: 30, right: 30, bottom: 30),
       child: Column(
         children: [
-          Text('hellopw rpld'),
-          Text('hellopw WORLD'),
+          Container(
+            height: Get.height - 49,
+            width: Get.width,
+            child: ProductLanding(),
+          ),
+          Container(
+              height: Get.height,
+              width: Get.width,
+              child: QuotesCarousal(
+                carousalheight: Get.height - 49,
+              )),
+          Container(height: Get.height, width: Get.width, child: AfricaMap()),
+          Container(
+              height: Get.height / 4, width: Get.width, child: ContactUs())
         ],
       ),
     );

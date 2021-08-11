@@ -14,20 +14,27 @@ dependencies:
   sized_context: ^1.0.0-nullsafety
   styled_widget: ^0.3.1
   firebase_core: "^1.2.0"
+  http: "0.13.3"
   firebase_auth: "^1.2.0"
+  flex_color_picker: ^2.1.2
   cloud_functions: "^1.1.1"
   shared_preferences: ^2.0.6
   google_fonts: ^2.1.0
   time: ^2.0.0
   random_string: ^2.2.0-nullsafety
+  filter_list: ^1.0.0
   pretty_json: ^2.0.0
   faker: ^2.0.0 
   get: ^4.1.4
+  carousel_slider: ^4.0.0
   flutter_form_builder: ^6.0.1
   uuid: ^3.0.4
   flutter_svg: ^0.22.0
   url_launcher: ^6.0.9
   syncfusion_flutter_charts: ^19.2.46
+  syncfusion_flutter_datepicker: ^19.2.51
+  flutter_datetime_picker: ^1.5.1
+  syncfusion_flutter_treemap: ^19.2.51-beta
 
 
 dev_dependencies:

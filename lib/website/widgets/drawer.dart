@@ -34,10 +34,6 @@ class _DrawerState extends State<SideMenu> {
             press: () => _handlePageSelected(PageType.About),
           ),
           DrawerListTile(
-            title: "Partners",
-            press: () => _handlePageSelected(PageType.Partners),
-          ),
-          DrawerListTile(
             title: "Product",
             press: () => _handlePageSelected(PageType.Product),
           ),
