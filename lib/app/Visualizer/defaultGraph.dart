@@ -1,3 +1,4 @@
+import 'package:cwatch/apithings/APIHandler.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -14,47 +15,6 @@ import 'package:syncfusion_flutter_treemap/treemap.dart';
 
 import 'defaultgraphcontroller.dart';
 
-enum possiblePlots {
-  sparkLineChart,
-  sparkAreaChart,
-  sparkbarChart,
-  sparkWinLossChart,
-  TreeMap,
-  HeatMap,
-  funnelChart,
-  pyramidChart,
-  circularpiChart,
-  CircularDoughnutChart,
-  CircularRadialBarChart,
-  cartesianChart,
-  FastLineChart,
-  AreaChart,
-  SplineChart,
-  ColumnChart,
-  BarChart,
-  BubbleChart,
-  ScatterChart,
-  SteplineChart,
-  RangecolumnChart,
-  RangeareaChart,
-  SplineareaChart,
-  SplinerangeareaChart,
-  StepareaChart,
-  HistogramChart,
-  StackedlineChart,
-  StackedareaChart,
-  StackedcolumnChart,
-  StackedbarChart,
-  Stackedarea100Chart,
-  Stackedcolumn100Chart,
-  Stackedbar100Chart,
-  Stackedline100Chart,
-  HiLoChart,
-  OHLCChart,
-  CandleChart,
-  BoxandWhiskerChart,
-  WaterfallChart
-}
 enum graphs {
   lineChart,
   AreaChart,
@@ -97,12 +57,10 @@ class DefaultGraph extends StatelessWidget {
 
   Rx<DateTime> selectedDate = DateTime.now().obs;
   Rx<Color> plotAreaBackgroundColor = Colors.red.obs;
-
-  // RxInt selectedGraph = 0.obs;
+  RxInt index;
   Rx<graphs> selectedGraph = graphs.lineChart.obs;
-  DefaultGraph({Key? key}) : super(key: key);
+  DefaultGraph({Key? key, required this.index}) : super(key: key);
   VisualizerController Visualcontroller = Get.find();
-  // DefaultGraphController controller = Get.put(DefaultGraphController());
 
   @override
   Widget build(BuildContext context) {
@@ -130,9 +88,11 @@ class DefaultGraph extends StatelessWidget {
 
   Widget _graph(BuildContext context) {
     List<Map<String, List<FakeData>>> rawdata = [];
-
+    if (Visualcontroller.allData.isEmpty)
+      return CircularProgressIndicator.adaptive();
     selectedCities.forEach((city) {
       rawdata.add(Visualcontroller.allData[city]!);
+      // print(Visualcontroller.allData[city]!);
     });
     // return
     List<List<FakeData>> graphData = datacleaning(rawdata);
@@ -162,9 +122,7 @@ class DefaultGraph extends StatelessWidget {
           // plotAreaBorderWidth: 0.0,
           primaryXAxis: selectedXPlot.value == xAxis.locations
               ? CategoryAxis(
-                  title: showXName.value
-                      ? AxisTitle(text: "default x axis")
-                      : null,
+                  title: showXName.value ? AxisTitle(text: "location") : null,
                   majorGridLines:
                       MajorGridLines(width: showgraphAxis.value ? 0.7 : 0),
                 )
@@ -177,105 +135,139 @@ class DefaultGraph extends StatelessWidget {
                   majorGridLines:
                       MajorGridLines(width: showgraphAxis.value ? 0.7 : 0),
                   title: showXName.value
-                      ? AxisTitle(text: "default x axis")
+                      ? AxisTitle(
+                          text:
+                              selectedXPlot.value == xAxis.day ? "day" : "time")
                       : null),
           primaryYAxis: NumericAxis(
               majorGridLines:
                   MajorGridLines(width: showgraphAxis.value ? 0.7 : 0),
-              title:
-                  showYName.value ? AxisTitle(text: "default y axis") : null),
+              title: showYName.value ? AxisTitle(text: getYAxisName()) : null),
           series: _getSeries(graphData));
     }
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(child: Container()),
-            IconButton(
-                onPressed: () {
-                  Get.defaultDialog(
-                    title: "Settings",
-                    content: graphSettings(context),
-                  );
-                },
-                icon: Icon(Icons.settings))
-          ],
-        ),
-        Flexible(child: child)
+        Visualcontroller.expandImage.value
+            ? Container()
+            : Row(
+                children: [
+                  Expanded(child: Container()),
+                  IconButton(
+                      onPressed: () {
+                        Get.defaultDialog(
+                          title: "Settings",
+                          content: graphSettings(context),
+                        );
+                      },
+                      icon: Icon(Icons.settings))
+                ],
+              ),
+        Expanded(child: child),
       ],
     );
   }
 
-  _tril(city, selected) {
+  String getYAxisName() {
+    switch (selectedData.value) {
+      case yAxisSingle.Gas:
+        return "gas";
+      case yAxisSingle.Temperature:
+        return "Temperature";
+      case yAxisSingle.Ozone:
+        return "Ozone";
+      case yAxisSingle.Pressure:
+        return "Pressure";
+      case yAxisSingle.Humidity:
+        return "Humidity";
+      case yAxisSingle.PM:
+        return "Particulate Matter";
+      default:
+        return " ";
+    }
+  }
+
+  _tril(city, String cityName, selected) {
     switch (selectedGraph.value) {
       case graphs.lineChart:
         return FastLineSeries<FakeData, DateTime>(
           dataSource: city,
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.AreaChart:
         return AreaSeries<FakeData, DateTime>(
           dataSource: city,
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.Bubble:
         return BubbleSeries<FakeData, DateTime>(
           dataSource: city,
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.Column:
         return ColumnSeries<FakeData, DateTime>(
           dataSource: city,
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.Scatter:
         return ScatterSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.StepLine:
         return StepLineSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.StepareaChart:
         return StepAreaSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.HistogramChart:
         return HistogramSeries<FakeData, DateTime>(
+            name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
             dataSource: city,
             yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
             showNormalDistributionCurve: true);
 
       case graphs.StackedlineChart:
         return StackedLineSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.StackedareaChart:
         return StackedAreaSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.StackedcolumnChart:
         return StackedColumnSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
           yValueMapper: (FakeData sales, _) => _yValueMapper(sales, selected),
         );
       case graphs.BoxandWhiskerChart:
         return BoxAndWhiskerSeries<FakeData, DateTime>(
+          name: singleDatePicker.value ? "time-$cityName" : "day-$cityName",
           dataSource: city,
           boxPlotMode: BoxPlotMode.exclusive,
           xValueMapper: (FakeData sales, _) => _xValueMapper(sales),
@@ -295,17 +287,13 @@ class DefaultGraph extends StatelessWidget {
   }
 
   _yValueMapper(FakeData sales, selected) {
-    if (selected == describeEnum(yAxisSingle.Gas))
-      return double.parse(sales.gas);
-    if (selected == describeEnum(yAxisSingle.Temperature))
+    if (selected == yAxisSingle.Gas) return double.parse(sales.gas);
+    if (selected == yAxisSingle.Temperature)
       return double.parse(sales.temperature);
-    if (selected == describeEnum(yAxisSingle.Pressure))
-      return double.parse(sales.pressure);
-    if (selected == describeEnum(yAxisSingle.Ozone))
-      return double.parse(sales.ozone);
-    if (selected == describeEnum(yAxisSingle.Humidity))
-      return double.parse(sales.humidity);
-    if (selected == describeEnum(yAxisSingle.PM)) return double.parse(sales.pm);
+    if (selected == yAxisSingle.Pressure) return double.parse(sales.pressure);
+    if (selected == yAxisSingle.Ozone) return double.parse(sales.ozone);
+    if (selected == yAxisSingle.Humidity) return double.parse(sales.humidity);
+    if (selected == yAxisSingle.PM) return double.parse(sales.pm);
   }
 
   location(List<CatName> data, selected) {
@@ -319,6 +307,41 @@ class DefaultGraph extends StatelessWidget {
         );
       case graphs.Column:
         return ColumnSeries<CatName, String>(
+          dataSource: data,
+          xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
+          yValueMapper: (CatName sales, _) =>
+              _yValueMapper(sales.data, selected),
+        );
+      case graphs.Scatter:
+        return ScatterSeries<CatName, String>(
+          dataSource: data,
+          xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
+          yValueMapper: (CatName sales, _) =>
+              _yValueMapper(sales.data, selected),
+        );
+      case graphs.StackedcolumnChart:
+        return StackedColumnSeries<CatName, String>(
+          dataSource: data,
+          xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
+          yValueMapper: (CatName sales, _) =>
+              _yValueMapper(sales.data, selected),
+        );
+      case graphs.StackedareaChart:
+        return StackedAreaSeries<CatName, String>(
+          dataSource: data,
+          xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
+          yValueMapper: (CatName sales, _) =>
+              _yValueMapper(sales.data, selected),
+        );
+      case graphs.StackedlineChart:
+        return StackedLineSeries<CatName, String>(
+          dataSource: data,
+          xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
+          yValueMapper: (CatName sales, _) =>
+              _yValueMapper(sales.data, selected),
+        );
+      case graphs.lineChart:
+        return LineSeries<CatName, String>(
           dataSource: data,
           xValueMapper: (CatName sales, _) => _xValueMapperCat(sales),
           yValueMapper: (CatName sales, _) =>
@@ -366,7 +389,6 @@ class DefaultGraph extends StatelessWidget {
     List<CatName> namesData = [];
     String name = '';
     //if series is location:
-    // if(selectedGraph.value == graphs.pyramidChart
 
     //selected date types
     if (selectedXPlot.value == xAxis.locations) {
@@ -374,14 +396,14 @@ class DefaultGraph extends StatelessWidget {
         for (var i = 0; i < cityData.length; i++) {
           switch (i) {
             case 0:
-              name = describeEnum(cities.Abuja);
+              name = describeEnum(AllActiveLocations.Abuja);
               break;
             case 1:
-              name = describeEnum(cities.Ghana);
+              name = describeEnum(AllActiveLocations.Accra);
               break;
 
             case 2:
-              name = describeEnum(cities.Coast);
+              name = describeEnum(AllActiveLocations.Abidjan);
 
               break;
             default:
@@ -416,15 +438,14 @@ class DefaultGraph extends StatelessWidget {
         for (var i = 0; i < cityData.length; i++) {
           switch (i) {
             case 0:
-              name = describeEnum(cities.Abuja);
+              name = describeEnum(AllActiveLocations.Abuja);
               break;
             case 1:
-              name = describeEnum(cities.Ghana);
+              name = describeEnum(AllActiveLocations.Accra);
               break;
 
             case 2:
-              name = describeEnum(cities.Coast);
-
+              name = describeEnum(AllActiveLocations.Abidjan);
               break;
             default:
           }
@@ -462,27 +483,22 @@ class DefaultGraph extends StatelessWidget {
       if (selectedGraph.value == graphs.CircularDoughnutChart ||
           selectedGraph.value == graphs.CircularRadialBarChart ||
           selectedGraph.value == graphs.circularpieChart) {
-        for (var selected in selectedData) {
-          circularSeries.add(location(namesData, selected));
-        }
+        circularSeries.add(location(namesData, selectedData.value));
         return circularSeries;
       } else if (selectedGraph.value == graphs.pyramidChart) {
         // for (var selected in selectedData) {
-        pyramidSeries = location(namesData, selectedData[0]);
-        // }
+        pyramidSeries = location(namesData, selectedData.value);
         return pyramidSeries;
       } else {
-        for (var selected in selectedData) {
-          chartSeries.add(location(namesData, selected));
-        }
+        chartSeries.add(location(namesData, selectedData.value));
         return chartSeries;
       }
     } else {
       //regular number stuffs
-      for (var city in cityData) {
-        for (var selected in selectedData) {
-          chartSeries.add(_tril(city, selected));
-        }
+      for (int i = 0; i < cityData.length; i++) {
+        var city = cityData[i];
+        String cityname = selectedCities.value[i];
+        chartSeries.add(_tril(city, cityname, selectedData.value));
       }
       return chartSeries;
     }
@@ -568,6 +584,7 @@ class DefaultGraph extends StatelessWidget {
           ozone = 0.0,
           gas = 0.0;
       String time = '';
+      int count = 0;
       rawdata.forEach((citydata) {
         citydata.keys.forEach((datetime) {
           if (selectedDatesRange.contains(datetime)) {
@@ -599,6 +616,7 @@ class DefaultGraph extends StatelessWidget {
         });
 
         cityData.add(dailyData);
+        dailyData = [];
       });
       return cityData;
     }
@@ -670,6 +688,11 @@ class DefaultGraph extends StatelessWidget {
                     onChanged: (value) => showYName.value = value);
               })
             ]),
+            ElevatedButton(
+                onPressed: () {
+                  Visualcontroller.deletegraph(index: index.value);
+                },
+                child: Text("delete graph")),
           ],
         ),
       ),
@@ -713,141 +736,194 @@ class DefaultGraph extends StatelessWidget {
     );
   }
 
+  RxList<graphs> locationDependentGraphs = [
+    graphs.pyramidChart,
+    graphs.circularpieChart,
+    graphs.CircularDoughnutChart,
+    graphs.CircularRadialBarChart,
+  ].obs;
   RxList<String> selectedCities = <String>[].obs;
-  RxList<String> selectedData = <String>[].obs;
+  Rx<yAxisSingle> selectedData = yAxisSingle.Temperature.obs;
   Widget showSettingsPopUp(context) {
     return Container(
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            // Row(
-            //   children: [
-            ElevatedButton(
-                onPressed: () async {
-                  await FilterListDialog.display<String>(
-                    Get.context,
-                    hideSearchField: true,
-                    choiceChipLabel: (item) => item,
-                    listData:
-                        cities.values.map((e) => describeEnum(e)).toList(),
-                    onApplyButtonClick: (list) {
-                      selectedCities.value = List.from(list!);
-                      Get.back();
-                    },
-                    onItemSearch: (list, String text) => list!,
-                    validateSelectedItem: (list, item) => list!.contains(item),
-                  );
-                },
-                child: Text("Select City")),
-            ElevatedButton(
-                onPressed: () {
-                  Get.defaultDialog(
-                      title: "Select Date",
-                      content: Container(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text("Multiple"),
-                                  Obx(() => Switch(
-                                      value: singleDatePicker.value,
-                                      onChanged: (da) {
-                                        selectedXPlot.value = xAxis.day;
-                                        singleDatePicker.value = da;
-                                      })),
-                                  Text("Single"),
-                                ],
-                              ),
-                              Obx(() {
-                                return Container(
-                                  width: 300,
-                                  height: 300,
-                                  child: SfDateRangePicker(
-                                    view: DateRangePickerView.month,
-                                    selectionMode: singleDatePicker.value
-                                        ? DateRangePickerSelectionMode.single
-                                        : DateRangePickerSelectionMode.range,
-                                    onSelectionChanged: _onSelectionChanged,
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ),
-                      onConfirm: () {
-                        // selectgraph.value = true;
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton(
+                  onPressed: () async {
+                    await FilterListDialog.display<String>(
+                      Get.context,
+                      hideSearchField: true,
+                      choiceChipLabel: (item) => item,
+                      listData: AllActiveLocations.values
+                          .map((e) => describeEnum(e))
+                          .toList(),
+                      onApplyButtonClick: (list) {
+                        selectedCities.value = List.from(list!);
                         Get.back();
                       },
-                      onCancel: () => Get.back());
-                  // DatePicker.showDatePicker(context,
-                  //     showTitleActions: true,
-                  //     minTime: DateTime(2021, 8, 1),
-                  //     maxTime: DateTime(2021, 9, 30),
-                  //     currentTime: DateTime.now(), onConfirm: (newDate) {
-                  //   selectedDate.value = newDate;
-                  // });
-                },
-                child: Text("Select date")),
-            Row(
-              children: [
-                Text("Select Graph Type     "),
-                Obx(() {
-                  return DropdownButton(
-                      onChanged: (newvalue) =>
-                          selectedGraph.value = newvalue as graphs,
-                      value: selectedGraph.value,
-                      items: graphs.values
-                          .map((e) => DropdownMenuItem(
-                              value: e, child: Text(describeEnum(e))))
-                          .toList());
-                })
-              ],
-            ),
-            Row(
-              children: [
-                Text("Plot X:     "),
-                Obx(() {
-                  return DropdownButton(
-                      onChanged: (value) =>
-                          selectedXPlot.value = value as xAxis,
-                      value: selectedXPlot.value,
-                      items: xAxis.values
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(describeEnum(e)),
-                              ))
-                          .toList());
-                }),
-                Text("     vs     "),
-                Text("Y:     "),
-                ElevatedButton(
-                    onPressed: () async {
-                      await FilterListDialog.display<String>(
-                        context,
-                        hideSearchField: true,
-                        choiceChipLabel: (item) => item,
-                        listData: yAxisSingle.values
-                            .map((e) => describeEnum(e))
-                            .toList(),
-                        onApplyButtonClick: (list) {
-                          selectedData.value = List.from(list!);
+                      onItemSearch: (list, String text) => list!,
+                      validateSelectedItem: (list, item) =>
+                          list!.contains(item),
+                    );
+                  },
+                  child: Text("Select City"))
+              .padding(all: 15),
+          ElevatedButton(
+                  onPressed: () {
+                    Get.defaultDialog(
+                        title: "Select Date",
+                        content: Container(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("Multiple"),
+                                    Obx(() => Switch(
+                                        value: singleDatePicker.value,
+                                        onChanged: (da) {
+                                          selectedXPlot.value = xAxis.day;
+                                          singleDatePicker.value = da;
+                                        })),
+                                    Text("Single"),
+                                  ],
+                                ),
+                                Obx(() {
+                                  return Container(
+                                    width: 300,
+                                    height: 300,
+                                    child: SfDateRangePicker(
+                                      minDate: DateTime(2021, 07, 1),
+                                      maxDate: DateTime(
+                                          DateTime.now().year,
+                                          DateTime.now().month,
+                                          DateTime.now().day - 1),
+                                      view: DateRangePickerView.month,
+                                      initialSelectedDate: DateTime(
+                                          DateTime.now().year,
+                                          DateTime.now().month,
+                                          DateTime.now().day - 1),
+                                      initialSelectedRanges: [
+                                        PickerDateRange(
+                                            DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day - 2),
+                                            DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day - 1))
+                                      ],
+                                      selectionMode: singleDatePicker.value
+                                          ? DateRangePickerSelectionMode.single
+                                          : DateRangePickerSelectionMode.range,
+                                      onSelectionChanged: _onSelectionChanged,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ),
+                        onConfirm: () {
+                          // selectgraph.value = true;
                           Get.back();
                         },
-                        onItemSearch: (list, String text) => list!,
-                        validateSelectedItem: (list, item) =>
-                            list!.contains(item),
-                      );
-                    },
-                    child: Text("Select y-values"))
-              ],
-            )
-          ],
-        ),
-      ),
+                        onCancel: () => Get.back());
+                  },
+                  child: Text("Select date"))
+              .padding(all: 15),
+          Text("Select Graph Type     "),
+          Obx(() {
+            return DropdownButton(
+                underline: Container(),
+                onChanged: (newvalue) {
+                  if (locationDependentGraphs.value.contains(newvalue)) {
+                    selectedXPlot.value = xAxis.locations;
+                  }
+                  selectedGraph.value = newvalue as graphs;
+                },
+                value: selectedGraph.value,
+                items: graphs.values.map((e) {
+                  return DropdownMenuItem(
+                      value: e, child: Text(describeEnum(e)));
+                }).toList());
+          }).padding(all: 15),
+          Text("Plot X:     "),
+          Obx(() {
+            return DropdownButton(
+                underline: Container(),
+                onChanged: (value) => selectedXPlot.value = value as xAxis,
+                value: selectedXPlot.value,
+                items: getxAxisOptions());
+          }),
+          Text("     vs     "),
+          Text("Y:     "),
+          Obx(() {
+            return DropdownButton(
+                underline: Container(),
+                onChanged: (newValue) =>
+                    selectedData.value = newValue as yAxisSingle,
+                value: selectedData.value,
+                items: yAxisSingle.values
+                    .map((e) => DropdownMenuItem(
+                        value: e, child: Text(describeEnum(e))))
+                    .toList());
+          })
+        ],
+      ).padding(all: 15)),
     );
+  }
+
+  List<graphs> allOptions = [
+    graphs.Column,
+    graphs.Bubble,
+    graphs.Scatter,
+    graphs.StackedcolumnChart,
+    graphs.StackedareaChart,
+    graphs.StackedlineChart,
+    graphs.lineChart
+  ];
+  getxAxisOptions() {
+    if (allOptions.contains(selectedGraph.value) && singleDatePicker.value) {
+      return xAxis.values
+          .map((e) => DropdownMenuItem(value: e, child: Text(describeEnum(e))))
+          .toList();
+    } else if (allOptions.contains(selectedGraph.value) &&
+        !singleDatePicker.value) {
+      List<xAxis> vals = [xAxis.day, xAxis.locations];
+      return vals
+          .map((e) => DropdownMenuItem(value: e, child: Text(describeEnum(e))))
+          .toList();
+    }
+    if (locationDependentGraphs.value.contains(selectedGraph.value)) {
+      return [
+        DropdownMenuItem(
+          value: xAxis.locations,
+          child: Text("location"),
+        )
+      ];
+    }
+    if (!singleDatePicker.value)
+      return [
+        DropdownMenuItem(
+          value: xAxis.day,
+          child: Text("days"),
+        )
+      ];
+    else
+      return [
+        DropdownMenuItem(
+          value: xAxis.locations,
+          child: Text("location"),
+        ),
+        DropdownMenuItem(
+          value: xAxis.hr,
+          child: Text("hour"),
+        ),
+      ];
   }
 
   List<String> selectedDatesRange = [];
@@ -867,9 +943,6 @@ class DefaultGraph extends StatelessWidget {
         ranges.add(rangeStartDate.add(Duration(days: i)).toString());
         selectedDatesRange = ranges;
       }
-      selectedDatesRange.forEach((element) {
-        // print(element);
-      });
     } else if (args.value is DateTime) {
       final DateTime selectedDate = args.value;
       this.userSelectedDate = selectedDate;

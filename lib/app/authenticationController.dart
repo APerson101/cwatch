@@ -10,6 +10,8 @@ class AuthenticationController extends GetxController with StateMixin<bool> {
   Rx<AuthenticationStatus> _authenticationStatus =
       AuthenticationStatus.loading.obs;
 
+  RxBool loggedInUserState = false.obs;
+
   Rx<AuthenticationStatus> get authStatus => _authenticationStatus;
   Rxn<User> get loggedInUser => _user;
 
@@ -19,8 +21,8 @@ class AuthenticationController extends GetxController with StateMixin<bool> {
 
   @override
   void onInit() {
-    // _initialize();
-    demoSignIn();
+    _initialize();
+    // demoSignIn();
 
     super.onInit();
   }
@@ -33,7 +35,7 @@ class AuthenticationController extends GetxController with StateMixin<bool> {
   _initialize() {
     // _authenticationStatus.value = AuthenticationStatus.loading;
     change(false, status: RxStatus.loading());
-    _user.bindStream(auth.authStateChanges());
+    _user.bindStream(FirebaseAuth.instance.authStateChanges());
     // _authenticationStatus.value = AuthenticationStatus.success;
     change(true, status: RxStatus.success());
   }

@@ -1,8 +1,11 @@
+import 'package:cwatch/apithings/APIHandler.dart';
 import 'package:cwatch/app/appcontroller.dart';
 import 'package:cwatch/app/dashboard/dashboardController.dart';
 import 'package:cwatch/app/history/historyview.dart';
+import 'package:cwatch/app/models/datamodel.dart';
 import 'package:cwatch/app/models/latestdatamodel.dart';
 import 'package:cwatch/app/models/weathermodel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:random_string/random_string.dart';
@@ -19,12 +22,25 @@ class LatestData extends StatelessWidget {
         return Container(child: Center(child: CircularProgressIndicator()));
       if (data.value == weatherDataState.success)
         return Obx(() {
-          List<FakeData> data = controller.fakedata;
-          // print('loading data again ohhh');
+          List<LocationDataModel> data = controller.allData;
           return Container(
             child: Column(children: [
-              Expanded(flex: 1, child: Text("Latest Data")),
-              Expanded(flex: 5, child: Row(children: getData(data: data)))
+              Expanded(
+                  flex: 1,
+                  child: Text(
+                    "Latest Data",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        letterSpacing: 3),
+                  )),
+              Expanded(
+                  flex: 5,
+                  child: data.isEmpty
+                      ? Container(
+                          child: Center(
+                              child: CircularProgressIndicator.adaptive()))
+                      : getData(data: data))
             ]),
           );
         });
@@ -32,40 +48,80 @@ class LatestData extends StatelessWidget {
     }, controller.weatherstate);
   }
 
-  getData({required List<FakeData> data}) {
-    return data
-        .map(
-          (e) => Expanded(
-              child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('Abuja: ', style: TextStyle(fontSize: 23)),
-                Text('Temperature: ' + e.temperature.toString()),
-                Text('Atmospheric pressure: ' + e.pressure.toString()),
-                Text('Particulate matter 2.5: ' + e.pm.toString()),
-                Text('Ozone: ' + e.ozone.toString()),
-                Text('Gas: ' + e.gas.toString()),
-                Text('humidity: ' + e.humidity.toString()),
-                Obx(() {
-                  var currentdata =
-                      controller.weatherData.value.current?.weather?.main;
-                  // WeatherModel? weather = currentdata.value.current;
-                  // if(weather?.weather?.main!=null)
-                  return Text('weather: $currentdata');
-                  // else return Text()
-                }),
-                Obx(() {
-                  var currentdata = controller
-                      .weatherData.value.current?.weather?.description;
+  getData({required List<LocationDataModel> data}) {
+    return latestData(data);
+  }
 
-                  return Text('desc: $currentdata');
-                })
-              ],
-            ),
-            color: Colors.red,
-          ).paddingDirectional(start: 4, end: 4, top: 4, bottom: 4)),
-        )
-        .toList();
+  latestData(List<LocationDataModel> data) {
+    return Obx(() {
+      int selected = data.indexWhere((element) =>
+          element.location == describeEnum(controller.selectedLocation.value));
+      String currentDateEpoch =
+          DateTime(2021, DateTime.now().month, DateTime.now().day - 1)
+              .microsecondsSinceEpoch
+              .toString();
+      String currentHour = DateTime(2021, DateTime.now().month,
+              DateTime.now().day - 1, DateTime.now().hour)
+          .microsecondsSinceEpoch
+          .toString();
+      LocationDataModel e = data[selected];
+      return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                'Temperature (°C): ' +
+                    e.locationData[currentDateEpoch]!.dayData[currentHour]!
+                        .temperature,
+                style: TextStyle(letterSpacing: 3)),
+            Text(
+                'Atmospheric pressure ("Hg): ' +
+                    e.locationData[currentDateEpoch]!.dayData[currentHour]!
+                        .pressure,
+                style: TextStyle(letterSpacing: 3)),
+            Text(
+                'Particulate matter 2.5: ' +
+                    e.locationData[currentDateEpoch]!.dayData[currentHour]!.pm,
+                style: TextStyle(letterSpacing: 3)),
+            Text(
+                'Ozone (ppm): ' +
+                    e.locationData[currentDateEpoch]!.dayData[currentHour]!
+                        .ozone,
+                style: TextStyle(letterSpacing: 3)),
+            Text(
+                'Humidity (%): ' +
+                    e.locationData[currentDateEpoch]!.dayData[currentHour]!
+                        .humidity,
+                style: TextStyle(letterSpacing: 3)),
+            Obx(() {
+              String? currentdata = "";
+              if (controller.weatherData.value.current == null)
+                return CircularProgressIndicator.adaptive();
+              currentdata =
+                  controller.weatherData.value.current?.weather?.main!;
+
+              // controller.weatherData.value.current?.weather?.main;
+              // WeatherModel? weather = currentdata.value.current;
+              // if(weather?.weather?.main!=null)
+              return Text('Weather: $currentdata',
+                  style: TextStyle(letterSpacing: 3));
+              // else return Text()
+            }),
+            Obx(() {
+              String? currentdata = "";
+              if (controller.weatherData.value.current == null)
+                return Container();
+              currentdata =
+                  controller.weatherData.value.current?.weather?.description!;
+
+              return Text('Description: $currentdata',
+                  style: TextStyle(letterSpacing: 3));
+            })
+          ],
+        ),
+        // color: Colors.red,
+      ).paddingDirectional(start: 4, end: 4, top: 4, bottom: 4);
+    });
   }
 }

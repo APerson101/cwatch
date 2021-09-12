@@ -1,3 +1,4 @@
+import 'package:cwatch/apithings/APIHandler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
@@ -17,17 +18,22 @@ class GetPages {
       GetPage(name: '/', page: () => MyApp(), bindings: [
         BindingsBuilder(() =>
             Get.lazyPut(() => AuthenticationController(auth), fenix: true)),
+        BindingsBuilder(() => Get.lazyPut(() => AppController(), fenix: true)),
+        BindingsBuilder(() => Get.lazyPut(() => APIHandler(), fenix: true)),
       ]),
       GetPage(name: '/mainSite', page: () => MainSite(), bindings: [
         BindingsBuilder(() => Get.lazyPut(() => MainSiteController())),
       ]),
       GetPage(name: '/app', page: () => MainApp(), bindings: [
-        BindingsBuilder(() => Get.lazyPut(() => AppController()))
+        BindingsBuilder(() => Get.lazyPut(() => AppController(), fenix: true)),
       ]),
       GetPage(
         name: '/login',
         page: () => LoginView(),
-        bindings: [BindingsBuilder(() => Get.lazyPut(() => LoginController()))],
+        bindings: [
+          BindingsBuilder(() => Get.lazyPut(() => APIHandler(), fenix: true)),
+          BindingsBuilder(() => Get.lazyPut(() => LoginController()))
+        ],
       ),
     ];
   }

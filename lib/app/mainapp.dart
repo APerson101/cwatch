@@ -1,3 +1,4 @@
+import 'package:cwatch/apithings/APIHandler.dart';
 import 'package:cwatch/app/Visualizer/visualizer.dart';
 import 'package:cwatch/app/about/aboutView.dart';
 import 'package:cwatch/app/apikey/apikey.dart';
@@ -26,8 +27,6 @@ class MainApp extends StatelessWidget {
     AppPages.Dashboard,
     AppPages.Visualizer,
     AppPages.History,
-    AppPages.Notifications,
-    AppPages.Profile
   ];
 
   @override
@@ -74,6 +73,7 @@ class MainApp extends StatelessWidget {
     ]);
   }
 
+  APIHandler _handler = APIHandler();
   getCurrentView(page, double leftContentOffset) {
     Widget view;
     switch (page.value) {
@@ -89,17 +89,9 @@ class MainApp extends StatelessWidget {
       case AppPages.Visualizer:
         view = VisualizerView();
         break;
-      case AppPages.Profile:
-        view = ProfileView();
-        break;
+
       case AppPages.About:
         view = AboutView();
-        break;
-      case AppPages.Notifications:
-        view = NotificationsView();
-        break;
-      case AppPages.API:
-        view = Apikey();
         break;
       default:
         view = CircularProgressIndicator();
@@ -118,11 +110,7 @@ class MainApp extends StatelessWidget {
                 BottomNavigationBarItem(
                     icon: Icon(Icons.auto_graph), label: 'Visualizer'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.history), label: 'History'),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.notifications), label: 'Notifications'),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person), label: 'Profile'),
+                    icon: Icon(Icons.history), label: 'History')
               ],
               currentIndex: mobilePages.indexOf(data.value),
               selectedItemColor: Colors.amber,

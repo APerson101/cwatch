@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-enum options { settings, about, logout, API }
+enum MenuOptions { settings, about, logout, API }
 
 class ProfileView extends StatelessWidget {
   ProfileView({Key? key}) : super(key: key);
@@ -22,16 +22,17 @@ class ProfileView extends StatelessWidget {
                 title: Expanded(child: Text("profile")),
                 actions: [
                   PopupMenuButton<int>(onSelected: (value) {
-                    if (value == options.settings.index)
+                    if (value == MenuOptions.settings.index)
                       Get.to(SettingsView());
-                    else if (value == options.about.index) Get.to(AboutView());
-                    if (value == options.logout.index) {
+                    else if (value == MenuOptions.about.index)
+                      Get.to(AboutView());
+                    if (value == MenuOptions.logout.index) {
                       AppController _controller = Get.find();
                       _controller.logOut();
                     }
-                    if (value == options.API.index) Get.to(Apikey());
+                    if (value == MenuOptions.API.index) Get.to(Apikey());
                   }, itemBuilder: (BuildContext context) {
-                    return options.values
+                    return MenuOptions.values
                         .map((e) => PopupMenuItem<int>(
                             value: e.index, child: Text(describeEnum(e))))
                         .toList();

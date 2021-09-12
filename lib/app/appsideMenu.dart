@@ -33,9 +33,9 @@ class _DrawerState extends State<AppSideMenu> {
       child: Container(
           child: ListView(
         children: [
-          DrawerHeader(child: FlutterLogo()
-              // Image.asset("assets/images/logo.png"),
-              ),
+          DrawerHeader(
+            child: Image.asset("images/climate-change.png"),
+          ),
           DrawerListTile(
             title: "Dashboard",
             press: () => _handlePageSelected(AppPages.Dashboard),
@@ -48,34 +48,21 @@ class _DrawerState extends State<AppSideMenu> {
             title: "History",
             press: () => _handlePageSelected(AppPages.History),
           ),
-          DrawerListTile(
-            title: "Notifications",
-            press: () => _handlePageSelected(AppPages.Notifications),
-          ),
-          DrawerListTile(
-            title: "Settings",
-            press: () => _handlePageSelected(AppPages.Settings),
-          ),
-          // DrawerListTile(
-          //   title: "Profile",
-          //   press: () => _handlePageSelected(AppPages.Profile),
-          // ),
+
           DrawerListTile(
             title: "About",
             press: () => _handlePageSelected(AppPages.About),
           ),
-          ElevatedButton(
-              onPressed: () => Get.changeTheme(
-                  Get.isDarkMode ? ThemeData.light() : ThemeData.dark()),
-              child: Text('Theme')),
-
-          /// logout
-          SizedBox(height: 15),
+          SizedBox(height: 100),
           ElevatedButton(
               onPressed: () {
-                appController.logOut();
+                Get.changeThemeMode(
+                    Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
+                print("changing theme");
               },
-              child: Text('Logout')),
+              child: Text('Change Theme'))
+
+          /// logout
         ],
       )),
     ).constrained(maxWidth: 280);

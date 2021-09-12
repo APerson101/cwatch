@@ -13,54 +13,57 @@ class VisualizerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("data vizualiser"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                controller.graphsWidgets
-                    .add(_default(controller.graphsWidgets.length));
-                controller.addGraph();
-              },
-              icon: Icon(Icons.add)),
-          Obx(() {
-            var opacity = controller.numberOfGraphs.value;
-            return Row(
-              children: [
-                Text("number per row: "),
-                DropdownButton<int>(
-                    value: controller.numberPerRow.value,
-                    onChanged: (newValue) =>
-                        controller.numberPerRow.value = newValue!,
-                    items: [1, 2, 3].map((e) {
-                      return DropdownMenuItem(
-                          value: e, child: Text(e.toString()));
-                    }).toList())
-              ],
-            ).opacity(
-              opacity == 0 ? 0 : 1,
-            );
-          })
-        ],
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Data vizualiser"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  controller.graphsWidgets
+                      .add(_default(controller.graphsWidgets.length));
+                  controller.addGraph();
+                },
+                icon: Icon(Icons.add)),
+            Obx(() {
+              var opacity = controller.numberOfGraphs.value;
+              return Row(
+                children: [
+                  Text("number per row: "),
+                  DropdownButton<int>(
+                      underline: Container(),
+                      value: controller.numberPerRow.value,
+                      onChanged: (newValue) =>
+                          controller.numberPerRow.value = newValue!,
+                      items: [1, 2, 3].map((e) {
+                        return DropdownMenuItem(
+                            value: e, child: Text(e.toString()));
+                      }).toList())
+                ],
+              ).opacity(
+                opacity == 0 ? 0 : 1,
+              );
+            })
+          ],
+        ),
+        body: Padding(
+            padding: const EdgeInsets.only(left: 30.0, right: 30, top: 10),
+            child: Center(
+                child: Stack(children: [
+              _gridView(),
+              ...[
+                Obx(() {
+                  if (controller.expandImage.value)
+                    return BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(color: Colors.black.withOpacity(0.6)),
+                    );
+                  return Container();
+                }),
+                _preview(),
+              ]
+            ]))),
       ),
-      body: Padding(
-          padding: const EdgeInsets.only(left: 30.0, right: 30, top: 10),
-          child: Center(
-              child: Stack(children: [
-            _gridView(),
-            ...[
-              Obx(() {
-                if (controller.expandImage.value)
-                  return BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: Container(color: Colors.black.withOpacity(0.6)),
-                  );
-                return Container();
-              }),
-              _preview(),
-            ]
-          ]))),
     );
   }
 
@@ -93,16 +96,16 @@ class VisualizerView extends StatelessWidget {
             child: Text(" press the + button to add graph"),
           ),
         );
-      var mainAxisExtent, maxCrossAxisExtent;
-      if (number == 1 || number == 2) {
-        mainAxisExtent = Get.height - 60;
-        if (number == 1) maxCrossAxisExtent = Get.width;
-        if (number == 2) maxCrossAxisExtent = Get.width / 2;
-      }
-      if (number > 2) {
-        mainAxisExtent = (Get.height - 60) / 2;
-        maxCrossAxisExtent = Get.width / 2;
-      }
+      // var mainAxisExtent, maxCrossAxisExtent;
+      // if (number == 1 || number == 2) {
+      //   mainAxisExtent = Get.height - 60;
+      //   if (number == 1) maxCrossAxisExtent = Get.width;
+      //   if (number == 2) maxCrossAxisExtent = Get.width / 2;
+      // }
+      // if (number > 2) {
+      //   mainAxisExtent = (Get.height - 60) / 2;
+      //   maxCrossAxisExtent = Get.width / 2;
+      // }
 
       return GridView.count(
         crossAxisCount: controller.numberPerRow.value,
@@ -111,44 +114,6 @@ class VisualizerView extends StatelessWidget {
         mainAxisSpacing: 20,
         children: _gridchildren(),
       );
-
-      return GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: controller.numberPerRow.value,
-          mainAxisExtent: mainAxisExtent,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-        ),
-        itemBuilder: (context, int) {
-          var graphWidget = GestureDetector(
-              onDoubleTap: () {
-                if (controller.expandImage.value) return;
-                print('double tap initiated');
-                controller.expandImage.value = true;
-                controller.longpressegraph.value = int;
-              },
-              child: Container(
-                  padding: EdgeInsets.all(15),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Text(randomBetween(0, 10).toString()),
-                        FlutterLogo(),
-                      ],
-                    ),
-                  ),
-                  // width: 200,
-                  // height: 200,
-                  color: Colors.red)
-              // .constrained(maxWidth: Get.height - 50),
-              );
-          controller.graphsWidgets.add(graphWidget);
-          print(controller.graphsWidgets.length);
-
-          return graphWidget;
-        },
-        itemCount: controller.numberOfGraphs.value,
-      );
     });
   }
 
@@ -156,18 +121,18 @@ class VisualizerView extends StatelessWidget {
     return controller.graphsWidgets;
   }
 
-  Widget _default(int) {
-    print(controller.graphsWidgets.length);
-
-    return GestureDetector(
-        onDoubleTap: () {
-          if (controller.expandImage.value) return;
-          print('double tap initiated');
-          controller.expandImage.value = true;
-          controller.longpressegraph.value = int;
-        },
-        child: Container(
-            padding: EdgeInsets.all(15),
+  TestWidget _default(int int) {
+    return TestWidget(
+      index: int.obs,
+      detector: GestureDetector(
+          onDoubleTap: () {
+            if (controller.expandImage.value) return;
+            print('double tap initiated');
+            controller.expandImage.value = true;
+            controller.longpressegraph.value = int;
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 5, right: 5),
             // child: SingleChildScrollView(
             //   child: Column(
             //     children: [
@@ -176,11 +141,24 @@ class VisualizerView extends StatelessWidget {
             //     ],
             //   ),
             // ),
-            child: DefaultGraph(),
+            child: DefaultGraph(index: int.obs),
             // width: 200,
             // height: 200,
-            color: Colors.red)
-        // .constrained(maxWidth: Get.height - 50),
-        );
+            // color: Colors.green
+          )
+          // .constrained(maxWidth: Get.height - 50),
+          ),
+    );
+  }
+}
+
+class TestWidget extends StatelessWidget {
+  TestWidget({Key? key, required this.detector, required this.index})
+      : super(key: key);
+  RxInt index;
+  GestureDetector detector;
+  @override
+  Widget build(BuildContext context) {
+    return detector;
   }
 }
