@@ -19,7 +19,8 @@ By giving them access to this information, users can set reminders and check the
 Alternate solutions:
 There are individual data collectors for very different states in West Africa, however, there is no single platform for data sharing and data research. Our platform aims to close that gap with the developing world.
 
-
+## Website Demo:
+http://softai.ltd
 
 ## Road Map
 ![Asset 9 (1)](https://user-images.githubusercontent.com/30829595/130590818-119478b2-7e2a-4922-aa92-63155948835f.png)
