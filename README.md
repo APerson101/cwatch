@@ -22,6 +22,13 @@ There are individual data collectors for very different states in West Africa, h
 ## Website Demo:
 http://www.softai.ltd
 
+## Pictures: 
+
+![Screenshot 2021-09-17 at 15 45 01](https://user-images.githubusercontent.com/30829595/134125178-bf39a972-4f81-4cef-bc5c-32f96e86638f.png)
+![Screenshot 2021-09-17 at 15 43 18](https://user-images.githubusercontent.com/30829595/134125184-a4e52543-2cec-4c05-a20d-1f94fb9845a9.png)
+![Screenshot 2021-09-17 at 15 42 31](https://user-images.githubusercontent.com/30829595/134125188-9bee471c-6fc8-4263-96ca-bfdb2205c8b1.png)
+
+
 ## Road Map
 ![Asset 9 (1)](https://user-images.githubusercontent.com/30829595/130590818-119478b2-7e2a-4922-aa92-63155948835f.png)
 
