@@ -8,7 +8,7 @@ An example of this problem can be seen from “waqi.info”. A website that prov
 
 ## Our solution
 
-We built inexpensive air quality measuring devices that logs information about the air in an environment. This device measures the air quality and stores the data both locally on an SD card and on the IBM Cloud, measurement occurs as specified intervals which can be altered by the user when they log on to the console from either the website or the mobile app. These devices are placed at various locations across the city and every user has access to each device. Current available countries where the device is active are: Nigeria, Ghana, Ivory Coast.
+We built inexpensive air quality measuring devices that logs information about the air in an environment. This device measures the air quality and stores the data both locally on an SD card and on the Cloud and on the blockchain, measurement occurs as specified intervals which can be altered by the user when they log on to the console from either the website or the mobile app. These devices are placed at various locations across the city and every user has access to each device. Current available countries where the device is active are: Nigeria, Ghana, Ivory Coast.
 
 The device sensors include PM Sensor, Humidity Sensor, Temperature Sensor, Pressure sensor, Ozone Sensor.
 
