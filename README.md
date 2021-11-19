@@ -19,6 +19,13 @@ By giving them access to this information, users can set reminders and check the
 Alternate solutions:
 There are individual data collectors for very different states in West Africa, however, there is no single platform for data sharing and data research. Our platform aims to close that gap with the developing world.
 
+## Featues:
+
+1. data authenticity and credibility via helium blockchain
+2. Location authenticity via satellite data
+3. mobile app and web app
+4. carbon offset credit
+
 ## Website Demo:
 http://www.softai.ltd
 
